@@ -40,7 +40,6 @@ def login(username: str = Form(...), password: str = Form(...)):
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    # query param ile kullanıcı adı al
     username = websocket.query_params.get("user")
     if not username:
         await websocket.close()
@@ -52,7 +51,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             msg = await websocket.receive_text()
             for user, conn_ws in connections:
-                await conn_ws.send_text(f"{username}: {msg}")
+                # Basit renkli mesaj: kullanıcı adı yeşil
+                await conn_ws.send_text(f"<b style='color:#4CAF50'>{username}</b>: {msg}")
     except WebSocketDisconnect:
         connections.remove((username, websocket))
-
