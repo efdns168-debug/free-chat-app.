@@ -89,6 +89,10 @@ h3, h4 { text-align: center; }
     <option value="Oda 2">Oda 2</option>
   </select>
 
+  <div style="text-align:center; margin-bottom:5px;">
+    <b>Şu anki oda: </b><span id="currentRoom">Genel</span>
+  </div>
+
   <div id="users"></div>
   <div id="log"></div>
   <input id="msg" placeholder="Mesaj yaz..." />
@@ -127,9 +131,12 @@ window.onload = () => {
       function connectRoom() {
         if(ws) ws.close();
         let selectedRoom = document.getElementById("roomSelect").value;
+        document.getElementById("currentRoom").innerText = selectedRoom;
+        document.getElementById("log").innerHTML = "";
+
         ws = new WebSocket("wss://" + location.host + "/ws?user="+encodeURIComponent(token)+"&room="+encodeURIComponent(selectedRoom));
         ws.onmessage = (ev)=>{
-          if(ev.data.startsWith("<div style='color:#FFD700")){ // kullanıcı listesi
+          if(ev.data.startsWith("<div style='color:#FFD700")){ 
             usersDiv.innerHTML = ev.data;
           } else {
             let p = document.createElement("div");
