@@ -3,6 +3,65 @@
 <head>
 <meta charset="utf-8">
 <title>Web Chat</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #1c1c1c, #2c2c54);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#auth, #chat {
+    background-color: rgba(0,0,0,0.8);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    width: 350px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#log {
+    background-color: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+h3, h4 {
+    text-align: center;
+}
+</style>
 </head>
 <body>
 <h3>Web Chat</h3>
@@ -20,7 +79,7 @@
 </div>
 
 <div id="chat" style="display:none;">
-  <div id="log" style="height:300px; border:1px solid #ccc; overflow:auto;"></div>
+  <div id="log"></div>
   <input id="msg" placeholder="Mesaj yaz..." />
   <button id="sendBtn">Gönder</button>
 </div>
@@ -56,7 +115,7 @@ window.onload = () => {
       ws = new WebSocket("wss://" + location.host + "/ws?user="+encodeURIComponent(token));
       ws.onmessage = (ev)=>{
         let p = document.createElement("div");
-        p.textContent = ev.data;
+        p.innerHTML = ev.data;  // HTML destekli mesaj (renkli kullanıcı adı)
         document.getElementById("log").appendChild(p);
         document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
       };
