@@ -1,8 +1,15 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse
 import uvicorn
 
 app = FastAPI()
 connections = []
+
+html = open("client.html", "r").read()
+
+@app.get("/")
+def get():
+    return HTMLResponse(html)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -16,9 +23,3 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         connections.remove(websocket)
 
-@app.get("/")
-def home():
-    return {"message": "Chat server çalışıyor!"}
-
-if __name__ == "__main__":
-    uvicorn.run("server:app", host="0.0.0.0", port=8000)
