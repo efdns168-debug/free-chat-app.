@@ -49,5 +49,18 @@ async def websocket_endpoint(websocket: WebSocket, room: str = "Genel"):
         rooms[room] = []
     rooms[room].append((username, websocket))
 
-    # Oda kullanıcı listesi
-    asy
+    async def broadcast_users():
+        users = [u for u, _ in rooms[room]]
+        for _, conn_ws in rooms[room]:
+            await conn_ws.send_text(f"<div style='color:#FFD700;font-weight:bold'>Kullanıcılar: {', '.join(users)}</div>")
+
+    await broadcast_users()
+
+    try:
+        while True:
+            msg = await websocket.receive_text()
+            for user, conn_ws in rooms[room]:
+                await conn_ws.send_text(f"<b style='color:#4CAF50'>{username}</b>: {msg}")
+    except WebSocketDisconnect:
+        rooms[room].remove((username, websocket))
+        await broadcast_users()
