@@ -11,24 +11,67 @@
   <h4>Kayıt Ol</h4>
   <input id="regUser" placeholder="Kullanıcı Adı">
   <input id="regPass" type="password" placeholder="Şifre">
-  <button onclick="register()">Kayıt Ol</button>
+  <button id="regBtn">Kayıt Ol</button>
 
   <h4>Giriş Yap</h4>
   <input id="logUser" placeholder="Kullanıcı Adı">
   <input id="logPass" type="password" placeholder="Şifre">
-  <button onclick="login()">Giriş Yap</button>
+  <button id="logBtn">Giriş Yap</button>
 </div>
 
 <div id="chat" style="display:none;">
   <div id="log" style="height:300px; border:1px solid #ccc; overflow:auto;"></div>
   <input id="msg" placeholder="Mesaj yaz..." />
-  <button onclick="sendMsg()">Gönder</button>
+  <button id="sendBtn">Gönder</button>
 </div>
 
 <script>
 let ws;
 let token = "";
 
-async function register(){
-  let res = await fetch("/register", {
-    metho
+window.onload = () => {
+
+  document.getElementById("regBtn").onclick = async () => {
+    let res = await fetch("/register", {
+      method:"POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body:`username=${encodeURIComponent(document.getElementById("regUser").value)}&password=${encodeURIComponent(document.getElementById("regPass").value)}`
+    });
+    let data = await res.json();
+    alert(data.status || data.detail);
+  };
+
+  document.getElementById("logBtn").onclick = async () => {
+    let res = await fetch("/login", {
+      method:"POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body:`username=${encodeURIComponent(document.getElementById("logUser").value)}&password=${encodeURIComponent(document.getElementById("logPass").value)}`
+    });
+    let data = await res.json();
+    if(data.status==="Giriş başarılı"){
+      document.getElementById("auth").style.display="none";
+      document.getElementById("chat").style.display="block";
+      token = document.getElementById("logUser").value;
+
+      ws = new WebSocket("wss://" + location.host + "/ws?user="+encodeURIComponent(token));
+      ws.onmessage = (ev)=>{
+        let p = document.createElement("div");
+        p.textContent = ev.data;
+        document.getElementById("log").appendChild(p);
+        document.getElementById("log").scrollTop = document.getElementById("log").scrollHeight;
+      };
+    } else {
+      alert(data.detail);
+    }
+  };
+
+  document.getElementById("sendBtn").onclick = () => {
+    let input = document.getElementById("msg");
+    if(input.value.trim()==="") return;
+    ws.send(input.value);
+    input.value="";
+  };
+};
+</script>
+</body>
+</html>
